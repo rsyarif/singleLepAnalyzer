@@ -10,15 +10,26 @@ from tdrStyle import *
 setTDRStyle()
 
 blind=False
-saveKey=''
 signal = 'T'
+# signal = 'B'
 lumiPlot = '35.9'
 lumiStr = '36p814'
 chiral=''#'right'
-discriminant='minMlbST'
+# discriminant='minMlbST'
+# discriminant='NXConeJets'
+# discriminant='NXConeJetsST'
+# discriminant='minMlbNXConeJetsST'
+# discriminant='minMlbNXConeJets'
+# discriminant='minMlbNXConeJetsV2'
+# discriminant='ST'
+# discriminant='maxMlep3XConeJetsST'
+# discriminant='maxMlep3XConeJets'
+discriminant='STminMlb'
+saveKey='_'+discriminant
 histPrefix=str(lumiStr)+'fb'+chiral
 stat='0.3'#0.75
 isRebinned='_BKGNORM_rebinned_stat'+str(stat).replace('.','p')#+'_renamed'
+# isRebinned=''
 #cutString='lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
 cutString=''#split'
 
@@ -211,12 +222,13 @@ def PlotLimits(limitDir,limitFile,tempKey):
 	    elif 'bH1p0' in tempKey: chString = 'B(bH) = 1.0'
 	    elif 'bZ1p0' in tempKey: chString = 'B(bZ) = 1.0'
     chLatex.DrawLatex(0.16, 0.74, chString)
-    if tempKey=='all' or 'minMlbST' in tempKey: chString = '1-lep'
-    elif 'dilep' in tempKey: chString = '2-lep'
-    elif 'ssdl' in tempKey: chString = 'SS 2-lep'
-    elif 'triL' in tempKey: chString = '3-lep'
-    elif 'comb123' in tempKey: chString = '1+2+3 lep'
-    else: chString = '1L + 3L'
+#     if tempKey=='all' or 'minMlbST' in tempKey: chString = '1-lep'
+#     elif 'dilep' in tempKey: chString = '2-lep'
+#     elif 'ssdl' in tempKey: chString = 'SS 2-lep'
+#     elif 'triL' in tempKey: chString = '3-lep'
+#     elif 'comb123' in tempKey: chString = '1+2+3 lep'
+#     else: chString = '1L + 3L'
+    chString = '1-lep'
     chLatex.DrawLatex(0.16, 0.69, chString)
         
     #latex2 = TLatex()
@@ -264,8 +276,8 @@ def PlotLimits(limitDir,limitFile,tempKey):
     c4.RedrawAxis()
     
     folder = '.'
-    outDir=folder+'/plotsOct17/'+limitDir.split('/')[-4]+'plots/'
-    if not os.path.exists(outDir): os.system('mkdir '+outDir)
+    outDir=folder+'/Limitplots/'+limitDir.split('/')[-4]+'plots/'
+    if not os.path.exists(outDir): os.system('mkdir -pv '+outDir)
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.root')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.pdf')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.png')
@@ -275,13 +287,13 @@ def PlotLimits(limitDir,limitFile,tempKey):
 
 doBRScan = True
 BRs={}
-BRs['BW']=[0.50,0.0]#,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]#0.0,1.0,0.0]#,
-BRs['TH']=[0.25,0.5]#,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]#1.0,0.0,0.0]#,
-BRs['TZ']=[0.25,0.5]#,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]#0.0,0.0,1.0]#,
+BRs['BW']=[0.50,0.0,0.0,1.0,0.0]#,]#,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]#
+BRs['TH']=[0.25,0.5,1.0,0.0,0.0]#,]#,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]#
+BRs['TZ']=[0.25,0.5,0.0,0.0,1.0]#,]#,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]#
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-tempKeys = ['comb123']#,'isE','isM','nW0','nW1p','nB0','nB1','nB2','nB3p']#
+tempKeys = ['']#comb123']#,'isE','isM','nW0','nW1p','nB0','nB1','nB2','nB3p']#
 
 expLims = []
 obsLims = []
@@ -291,10 +303,16 @@ for tempKey in tempKeys:
 		if doBRScan: 
 			if signal=='T': BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
 			else: BRconfStr='_tW'+str(BRs['BW'][BRind]).replace('.','p')+'_bZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_bH'+str(BRs['TH'][BRind]).replace('.','p')
-		limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/templates4CRhtSR_NewEl/'+tempKey+BRconfStr+'/splitLess/'
-		if signal=='B': limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/templates4CRhtSR_BB_NewEl/'+tempKey+BRconfStr+'/splitLess/'
-		if tempKey=='ssdltest': limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/templates4CRhtSR_NewEl/'+tempKey+'_bW0p5_tZ0p25_tH0p25/splitLess/'
-		
+		#limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/templates4CRhtSR_NewEl/'+tempKey+BRconfStr+'/splitLess/'
+		#limitDir='/user_data/rsyarif/singleLepXConelimits/templates_NewEl_2018_2_12/SRNoB0_binnning_v2/'+discriminant+BRconfStr+'/splitLess/'
+		#limitDir='/user_data/rsyarif/singleLepXConelimits/templates_NewEl_2018_3_22/SRNoB0/'+discriminant+BRconfStr+'/splitLess/'
+		#limitDir='/user_data/rsyarif/singleLepXConelimits/templates_NewEl_2018_3_27/SRNoB0/'+discriminant+BRconfStr+'/splitLess/'
+		#limitDir='/user_data/rsyarif/singleLepXConelimits/templates_rizki_SR_GlobalNX5p_2018_4_16/SRNoB0_GlobalNX5p/'+discriminant+BRconfStr+'/splitLess/'
+		limitDir='/user_data/rsyarif/singleLepXConelimits/templates_rizki_SR_NewXConeCat_2018_4_16/SRNoB0_NewXConeCat/'+discriminant+BRconfStr+'/splitLess/'
+		#if signal=='B': limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/templates4CRhtSR_BB_NewEl/'+tempKey+BRconfStr+'/splitLess/'
+		#if signal=='B': limitDir='/user_data/rsyarif/singleLepXConelimits/templates_NewEl_2018_2_8/noCRHB0/'+discriminant+BRconfStr+'/splitLess/'
+		if signal=='B': limitDir='/user_data/rsyarif/singleLepXConelimits/templates_NewEl_BB_2018_3_12/SRNoB0/'+discriminant+BRconfStr+'/splitLess/'
+		if tempKey=='ssdltest': limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/templates4CRhtSR_NewEl/'+tempKey+'_bW0p5_tZ0p25_tH0p25/splitLess/'		
 		limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M800'+chiral+BRconfStr+'_'+str(lumiStr)+'fb'+isRebinned+'_expected.txt'
 		if 'ssdl' in tempKey: limitFile='/limits_Limits_'+signal+signal+'M800'+chiral+BRconfStr+'_All_LL40_SL35_HT1200_nConst4_expected.txt'
 		#try: 

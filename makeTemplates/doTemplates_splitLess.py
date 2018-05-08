@@ -13,7 +13,17 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-iPlot = 'ST'
+# iPlot = 'ST'
+# iPlot = 'NXConeJets'
+# iPlot = 'NXConeJetsST'
+# iPlot = 'minMlbNXConeJetsST'
+# iPlot = 'minMlbNXConeJets'
+# iPlot = 'minMlbNXConeJetsV2'
+# iPlot = 'ST'
+# iPlot = 'maxMlep3XConeJetsST'
+# iPlot = 'maxMlep3XConeJets'
+# iPlot = 'minMlbST'
+iPlot = 'STminMlb'
 region='SR' #PS,SR,TTCR,WJCR
 isCategorized=True
 cutString='splitLess'#lep40_MET60_DR0_1jet200_2jet100'
@@ -24,8 +34,15 @@ if region=='HCR': pfix='higgs_'
 if region=='CR': pfix='templatesCR_'
 if region=='CRall': pfix='control_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='BB_NewEl'
-#pfix+='ST_2016_11_13_wJSF'
+# pfix+='BB_NewEl'
+# pfix+='NewEl'
+# pfix+='NewEl_2018_2_8'
+# pfix+='NewEl_2018_2_12' #1st attempt for NXConeJetsST
+# pfix+='NewEl_BB_2018_3_12' #2nd attempt for NXConeJetsST for BB
+# pfix+='NewEl_2018_3_22' #use 	'minMlbNXConeJetsST',minMlbNXConeJets',
+# pfix+='NewEl_2018_3_27' #use 	minMlbNXConeJetsV2', ST, maxMlep3XConeJetsST, maxMlep3XConeJets, minMlbST
+# pfix+='rizki_SR_GlobalNX5p_2018_4_16' # addd global cut NX5p
+pfix+='rizki_SR_NewXConeCat_2018_4_16' # addd new category
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 inDir = os.getcwd()+'/'+pfix+'/'
 
@@ -36,7 +53,8 @@ doAllSys = True
 doQ2sys = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','tau21','jmr','jms','muR','muF','muRFcorrd','jsf','toppt','trigeff','btag','mistag','taupt']#,,'topsf'
+# systematicList = ['pileup','jec','jer','tau21','jmr','jms','muR','muF','muRFcorrd','jsf','toppt','trigeff','btag','mistag','taupt']#,,'topsf'
+systematicList = ['pileup','tau21','jmr','jms','muR','muF','muRFcorrd','jsf','toppt','trigeff','btag','mistag','taupt']#no JEC/JER,,'topsf' 
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 bkgProcList = ['TTJets','T','WJets','ZJets','VV','QCD']
@@ -59,7 +77,7 @@ q2ttDownList = ['TTJetsPHQ2D']
 q2stUpList   = ['Tt','Ts','TtWQ2U','TbtWQ2U']#,'TTJetsPHQ2U'
 q2stDownList = ['Tt','Ts','TtWQ2D','TbtWQ2D']#,'TTJetsPHQ2D'
 
-whichSignal = 'BB' #TT, BB, or X53X53
+whichSignal = 'TT' #TT, BB, or X53X53
 signalMassRange = [800,1800]
 sigList = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
@@ -71,9 +89,12 @@ doBRScan = True
 BRs={}
 nBRconf=1
 if whichSignal=='TT':
-	BRs['BW']=[0.50,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]#
-	BRs['TH']=[0.25,0.5,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]#
-	BRs['TZ']=[0.25,0.5,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]#
+	BRs['BW']=[0.50,0.0,0.0,0.0,1.0]#,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8]#
+	BRs['TH']=[0.25,0.5,0.0,1.0,0.0]#,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2]#
+	BRs['TZ']=[0.25,0.5,1.0,0.0,0.0]#,0.8,0.6,0.4,0.2,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0]#
+# 	BRs['BW']=[0.50,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]#
+# 	BRs['TH']=[0.25,0.5,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]#
+# 	BRs['TZ']=[0.25,0.5,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]#
 	nBRconf=len(BRs['BW'])
 elif whichSignal=='BB':
 	BRs['TW']=[0.50,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8]#
@@ -83,7 +104,8 @@ elif whichSignal=='BB':
 if not doBRScan: nBRconf=1
 
 isEMlist =['E','M']
-if region=='SR': nHtaglist=['0','1b','2b']
+# if region=='SR': nHtaglist = ['0','1b','2b'] #use this when not using new XCone cat
+if region=='SR': nHtaglist = ['0','1b','2b','0p'] # added by rizki - comment when not using new XCone cat
 elif 'CR' in region:
 	if region=='HCR': nHtaglist=['1b','2b']
 	elif region=='CR': nHtaglist=['0','1p']
@@ -107,7 +129,8 @@ if not isCategorized:
 	if region=='HCR': 
 		nHtaglist = ['1p']
 		nbtaglist = ['1p']
-njetslist=['3p']
+# njetslist = ['3p'] #use this when not using new XCone cat
+njetslist = ['3pX5p','3pX4m'] #added by rizki - comment when not using new XCone cat
 if region=='PS': njetslist=['3p']
 print 'EMlist = ',isEMlist
 print 'Hlist = ',nHtaglist
@@ -125,7 +148,8 @@ for item in list(itertools.product(isEMlist,nHtaglist,nWtaglist,nbtaglist,njetsl
 				if item[3] != '0' and item[3] != '1p': continue
 			else:
 				if item[3] != '1p' and region != 'WJCR' and region != 'HCR' and region != 'CR': continue
-		elif 'b' not in item[1]:
+		#elif 'b' not in item[1]:
+		elif 'b' not in item[1] and item[1]!='0p': #added by rizki
 			if region == 'CRall':
 				if item[2] == '0' and item[3] != '0': continue
 				elif item[2] == '1p' and item[3] != '0': continue
@@ -135,12 +159,21 @@ for item in list(itertools.product(isEMlist,nHtaglist,nWtaglist,nbtaglist,njetsl
 				if item[3] == '1p' and region != 'CR': continue
 		if 'CR' in region: regiontag = 'isCR'
 		else: regiontag = 'isSR'
+		if 'X' in item[4]: #added by rizki
+		 	if (item[1]=='0' or 'b' in item[1]): #added by rizki
+				if 'X5p' not in item[4]: continue #added by rizki
+				if item[3]=='0':continue #added by rizki
+			elif item[1]=='0p': #added by rizki
+				if 'X4m'not in item[4]: continue #added by rizki				
+				if '0p' not in item[2]: continue #added by rizki				
+				if '1p' not in item[3]: continue #added by rizki				
+		print item #added by rizki
 
 	catList.append('_is'+item[0]+'_nH'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4])
 	if item[0] == 'E': tagList.append('nH'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4])
 
-print catList
-print tagList
+# print catList
+# print tagList
 
 lumiSys = math.sqrt(0.026**2 + 0.05**2) #lumi uncertainty plus higgs prop.
 eltrigSys = 0.01 #electron trigger uncertainty
@@ -193,6 +226,8 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			print "              processing cat: "+cat
 			histoPrefix=discriminant+'_'+lumiStr+'fb'+cat
 			histoPrefix2=discriminant+'_'+lumiStr+'fb'+cat.replace('nJ3p',regiontag)
+			if('X5p' in cat): histoPrefix2=discriminant+'_'+lumiStr+'fb'+cat.replace('nJ3pX5p','nX5p_'+regiontag) #added by rizki
+			if('X4m' in cat): histoPrefix2=discriminant+'_'+lumiStr+'fb'+cat.replace('nJ3pX4m','nX4m_'+regiontag) #added by rizki
 			i=BRconfStr+cat
 			
 			#Group processes

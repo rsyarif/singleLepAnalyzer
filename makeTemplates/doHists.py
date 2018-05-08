@@ -14,7 +14,9 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jhogan/LJMet80X_1lepTT_062617_step2slimmed/nominal'
+# step1Dir = '/user_data/rsyarif/LJMet80X_1lep_XCone_2018_1_18_and_2018_1_26_rizki_step1hadds/nominal'
+# step1Dir = '/user_data/rsyarif/LJMet80X_1lep_XCone_2018_1_18_and_2018_1_26_and_2018_1_29_rizki_step1hadds/nominal' #v2 with TrigEffWeightRMA
+step1Dir = '/user_data/rsyarif/LJMet80X_1lep_XCone_2018_1_18_and_2018_1_26_and_2018_1_29_rizki_step1_v2_hadds/nominal' #3rd version with maxMlep3XConeJets
 
 iPlot = 'minMlbST' #minMlb' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
@@ -127,11 +129,11 @@ for sig in sigList:
 		print "READING:", sig+decay
 		print "        nominal"
 		tFileSig[sig+decay],tTreeSig[sig+decay]=readTree(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
-		if doAllSys:
-			for syst in shapesFiles:
-				for ud in ['Up','Down']:
-					print "        "+syst+ud
-					tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
+# 		if doAllSys:
+# 			for syst in shapesFiles:
+# 				for ud in ['Up','Down']:
+# 					print "        "+syst+ud
+# 					tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
 
 tTreeBkg = {}
 tFileBkg = {}
@@ -140,14 +142,14 @@ for bkg in bkgList+q2List:
 	print "READING:",bkg
 	print "        nominal"
 	tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
-	if doAllSys:
-		for syst in shapesFiles:
-			for ud in ['Up','Down']:
-				if bkg in q2List:
-					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=None,None
-				else:
-					print "        "+syst+ud
-					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
+# 	if doAllSys:
+# 		for syst in shapesFiles:
+# 			for ud in ['Up','Down']:
+# 				if bkg in q2List:
+# 					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=None,None
+# 				else:
+# 					print "        "+syst+ud
+# 					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
 print "FINISHED READING"
 
 #bigbins = [0,50,100,150,200,250,300,350,400,450,500,600,700,800,1000,1200,1500]
@@ -160,6 +162,22 @@ if isCategorized and 'SR' in region:
 	xmax = 1000
 
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
+	#XCone - start
+	'XConeJetPt' :('theXConeJetPt_XConeCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';XCone jet p_{T} [GeV];'),
+	'XConeJetEta':('theXConeJetEta_XConeCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';XCone jet #eta;'),
+	'XConePUPPIJetPt' :('theXConePUPPIJetPt_XConeCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';XCone PUPPI jet p_{T} [GeV];'),
+	'XConePUPPIJetEta':('theXConePUPPIJetEta_XConeCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';XCone PUPPI jet #eta;'),
+	'NXConeJets' :('NXConeJets',linspace(0, 15, 16).tolist(),';XCone jet multiplicity;'),
+	'NXConePUPPIJets' :('NXConePUPPIJets',linspace(0, 15, 16).tolist(),';XCone PUPPI jet multiplicity;'),
+	'XConeHT':('XConeHT',linspace(0, 5000, nbins).tolist(),';XCone H_{T} (GeV);'),
+	'XConePUPPIHT':('XConePUPPIHT',linspace(0, 5000, nbins).tolist(),';XCone (PUPPI) H_{T} (GeV);'),
+	'NXConeJetsST' :('NXConeJets',linspace(0, 15, 16).tolist(),';XCone jet multiplicity;'), #analyze.py will use ST for H tag bins
+	'minMlbNXConeJetsST':('minMleppBjet',linspace(0, xmax, nbins).tolist(),';min[M(l,b)] (GeV);'), #analyze.py will use NXConeJets for bjets>=3, and ST for H tag bins
+	'minMlbNXConeJets':('minMleppBjet',linspace(0, xmax, nbins).tolist(),';min[M(l,b)] (GeV);'), #analyze.py will use NXConeJets for bjets>=3 and for H tag bins
+	'minMlbNXConeJetsV2':('minMleppBjet',linspace(0, xmax, nbins).tolist(),';min[M(l,b)] (GeV);'), #analyze.py will use NXConeJets for H tag bins
+	'maxMlep3XConeJetsST':('maxMlep3XConeJets',linspace(0, 5000, nbins).tolist(),';max[M(lXclose,X2,X3)](GeV);'), #analyze.py will use ST for H tag bins
+	'maxMlep3XConeJets':('maxMlep3XConeJets',linspace(0, 5000, nbins).tolist(),';max[M(lXclose,X2,X3)](GeV);'),
+	#XCone - end
 	'deltaRAK8':('minDR_leadAK8otherAK8',linspace(0,5,51).tolist(),';min #DeltaR(1^{st} AK8 jet, other AK8 jet)'),
 	'minDRlepAK8':('minDR_lepAK8',linspace(0,5,51).tolist(),';min #DeltaR(l, AK8 jet)'),
 	'masslepAK81':('mass_lepAK8s[0]',linspace(0,1500,51).tolist(),';M(l, AK8 jet 1) [GeV]'),
@@ -258,6 +276,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'ST':('AK4HTpMETpLepPt',linspace(0, 5000, nbins).tolist(),';S_{T} (GeV);'),
 	'minMlb':('minMleppBjet',linspace(0, xmax, nbins).tolist(),';min[M(l,b)] (GeV);'),
 	'minMlbST':('minMleppBjet',linspace(0, xmax, nbins).tolist(),';min[M(l,b)] (GeV);'), #analyze.py will use ST for H tag bins
+	'STminMlb':('AK4HTpMETpLepPt',linspace(0, 5000, nbins).tolist(),';S_{T} (GeV);'), #analyze.py will use minMlb for X4m bins
 	}
 
 print "PLOTTING:",iPlot
@@ -289,16 +308,16 @@ for cat in catList:
  	for bkg in bkgList: 
  		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  		if catInd==nCats: del tFileBkg[bkg]
- 		if doAllSys and catInd==nCats:
- 			for syst in shapesFiles:
- 				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
+#  		if doAllSys and catInd==nCats:
+#  			for syst in shapesFiles:
+#  				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
  	for sig in sigList: 
  	 	for decay in decays: 
  	 		sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  	 		if catInd==nCats: del tFileSig[sig+decay]
- 	 		if doAllSys and catInd==nCats:
- 	 			for syst in shapesFiles:
- 	 				for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
+#  	 		if doAllSys and catInd==nCats:
+#  	 			for syst in shapesFiles:
+#  	 				for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
  	if doQ2sys: 
  	 	for q2 in q2List: 
  	 		bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))

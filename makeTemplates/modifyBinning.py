@@ -29,9 +29,20 @@ start_time = time.time()
 # -- Use "removalKeys" to remove specific systematics from the output file.
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-iPlot='minMlbST'
+# iPlot='minMlbST'
+# iPlot='NXConeJetsST'
+# iPlot='minMlbNXConeJetsST'
+# iPlot='minMlbNXConeJets'
+iPlot='minMlbNXConeJetsV2'
+# iPlot='ST'
+# iPlot='maxMlep3XConeJetsST'
+# iPlot='maxMlep3XConeJets'
+# iPlot='minMlbST'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
-folder = ''
+# folder = 'templates_NewEl_2018_2_12'
+# folder = 'templates_NewEl_BB_2018_3_12'
+# folder = 'templates_NewEl_2018_3_22' #minMlbNXConeJetsST,minMlbNXConeJets
+folder = 'templates_NewEl_2018_3_27' #minMlbNXConeJetsV2, ST, maxMlep3XConeJetsST, maxMlep3XConeJets, minMlbST
 if len(sys.argv)>2: folder=str(sys.argv[2])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 templateDir = os.getcwd()+'/'+folder+'/'+cutString
@@ -132,69 +143,69 @@ for hist in datahists:
 
 xbinsListTemp = {}
 for chn in totBkgHists.keys():
-	if ('H1b' not in chn and 'H2b' not in chn and 'H1p' not in chn) or iPlot != 'minMlbST':
-		#print 'Channel',chn,'integral is',totBkgHists[chn].Integral()
-		if 'isE' not in chn: continue
-		#if 'nH0_nW0_nB0' not in chn: continue
-
-		xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
-		Nbins = tfile.Get(datahists[0]).GetNbinsX()
-		totTempBinContent_E = 0.
-		totTempBinContent_M = 0.
-		totTempBinErrSquared_E = 0.
-		totTempBinErrSquared_M = 0.
-		totTempDataContent_E = 0.
-		totTempDataContent_M = 0.
-		totTempDataErrSquared_E = 0.
-		totTempDataErrSquared_M = 0.
-		totTempSigContent_E = 0;
-		totTempSigContent_M = 0;
-		for iBin in range(1,Nbins+1):
-			totTempBinContent_E += totBkgHists[chn].GetBinContent(Nbins+1-iBin)
-			totTempBinContent_M += totBkgHists[chn.replace('isE','isM')].GetBinContent(Nbins+1-iBin)
-			totTempBinErrSquared_E += totBkgHists[chn].GetBinError(Nbins+1-iBin)**2
-			totTempBinErrSquared_M += totBkgHists[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
-			try:
-				totTempSigContent_E += SigHists[chn].GetBinContent(Nbins+1-iBin)
-				totTempSigContent_M += SigHists[chn.replace('isE','isM')].GetBinContent(Nbins+1-iBin)
-			except: pass
-			totTempDataContent_E += DataHists[chn].GetBinContent(Nbins+1-iBin)
-			totTempDataContent_M += DataHists[chn.replace('isE','isM')].GetBinContent(Nbins+1-iBin)
-			totTempDataErrSquared_E += totBkgHists[chn].GetBinError(Nbins+1-iBin)**2
-			totTempDataErrSquared_M += totBkgHists[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
-
-			#print 'totTempBinContent =',totTempBinContent_E,' ',totTempBinContent_M,', totTempBinErrSquared =',totTempBinErrSquared_E,' ',totTempBinErrSquared_M
-			#print 'totTempSigContent =',totTempSigContent_E,' ',totTempSigContent_M
-
-			if totTempBinContent_E>0. and totTempBinContent_M>0.:
-				if 'CR' in templateDir or 'ttbar' in templateDir or 'wjets' in templateDir or 'higgs' in templateDir or (totTempSigContent_E>0. and totTempSigContent_M>0):
-					if rebin4chi2 and (totTempDataContent_E == 0 or totTempDataContent_M == 0): continue
-					if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
-						if not rebin4chi2 or (math.sqrt(totTempDataErrSquared_E)/totTempDataContent_E<=stat and math.sqrt(totTempDataErrSquared_M)/totTempDataContent_M<=stat):
-							totTempBinContent_E = 0.
-							totTempBinContent_M = 0.
-							totTempBinErrSquared_E = 0.
-							totTempBinErrSquared_M = 0.
-							totTempDataContent_E = 0.
-							totTempDataContent_M = 0.
-							totTempDataErrSquared_E = 0.
-							totTempDataErrSquared_M = 0.
-							totTempSigContent_E = 0.
-							totTempSigContent_M = 0.
-							#print 'Appending bin edge',totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin)
-							xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
-		if xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn].append(0)
-		if totBkgHists[chn].GetBinContent(1)==0. or totBkgHists[chn.replace('isE','isM')].GetBinContent(1)==0.: 
-			if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
-		elif totBkgHists[chn].GetBinError(1)/totBkgHists[chn].GetBinContent(1)>stat or totBkgHists[chn.replace('isE','isM')].GetBinError(1)/totBkgHists[chn.replace('isE','isM')].GetBinContent(1)>stat: 
-			if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
-		xbinsListTemp[chn.replace('isE','isM')]=xbinsListTemp[chn]
-		if stat>1.0:
-			xbinsListTemp[chn] = [tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
-			for iBin in range(1,Nbins+1): 
-				xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
-			xbinsListTemp[chn.replace('isE','isM')] = xbinsListTemp[chn]
-	else:
+# 	if ('H1b' not in chn and 'H2b' not in chn and 'H1p' not in chn) or iPlot != 'minMlbST':
+# 		#print 'Channel',chn,'integral is',totBkgHists[chn].Integral()
+# 		if 'isE' not in chn: continue
+# 		#if 'nH0_nW0_nB0' not in chn: continue
+# 
+# 		xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
+# 		Nbins = tfile.Get(datahists[0]).GetNbinsX()
+# 		totTempBinContent_E = 0.
+# 		totTempBinContent_M = 0.
+# 		totTempBinErrSquared_E = 0.
+# 		totTempBinErrSquared_M = 0.
+# 		totTempDataContent_E = 0.
+# 		totTempDataContent_M = 0.
+# 		totTempDataErrSquared_E = 0.
+# 		totTempDataErrSquared_M = 0.
+# 		totTempSigContent_E = 0;
+# 		totTempSigContent_M = 0;
+# 		for iBin in range(1,Nbins+1):
+# 			totTempBinContent_E += totBkgHists[chn].GetBinContent(Nbins+1-iBin)
+# 			totTempBinContent_M += totBkgHists[chn.replace('isE','isM')].GetBinContent(Nbins+1-iBin)
+# 			totTempBinErrSquared_E += totBkgHists[chn].GetBinError(Nbins+1-iBin)**2
+# 			totTempBinErrSquared_M += totBkgHists[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
+# 			try:
+# 				totTempSigContent_E += SigHists[chn].GetBinContent(Nbins+1-iBin)
+# 				totTempSigContent_M += SigHists[chn.replace('isE','isM')].GetBinContent(Nbins+1-iBin)
+# 			except: pass
+# 			totTempDataContent_E += DataHists[chn].GetBinContent(Nbins+1-iBin)
+# 			totTempDataContent_M += DataHists[chn.replace('isE','isM')].GetBinContent(Nbins+1-iBin)
+# 			totTempDataErrSquared_E += totBkgHists[chn].GetBinError(Nbins+1-iBin)**2
+# 			totTempDataErrSquared_M += totBkgHists[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
+# 
+# 			#print 'totTempBinContent =',totTempBinContent_E,' ',totTempBinContent_M,', totTempBinErrSquared =',totTempBinErrSquared_E,' ',totTempBinErrSquared_M
+# 			#print 'totTempSigContent =',totTempSigContent_E,' ',totTempSigContent_M
+# 
+# 			if totTempBinContent_E>0. and totTempBinContent_M>0.:
+# 				if 'CR' in templateDir or 'ttbar' in templateDir or 'wjets' in templateDir or 'higgs' in templateDir or (totTempSigContent_E>0. and totTempSigContent_M>0):
+# 					if rebin4chi2 and (totTempDataContent_E == 0 or totTempDataContent_M == 0): continue
+# 					if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
+# 						if not rebin4chi2 or (math.sqrt(totTempDataErrSquared_E)/totTempDataContent_E<=stat and math.sqrt(totTempDataErrSquared_M)/totTempDataContent_M<=stat):
+# 							totTempBinContent_E = 0.
+# 							totTempBinContent_M = 0.
+# 							totTempBinErrSquared_E = 0.
+# 							totTempBinErrSquared_M = 0.
+# 							totTempDataContent_E = 0.
+# 							totTempDataContent_M = 0.
+# 							totTempDataErrSquared_E = 0.
+# 							totTempDataErrSquared_M = 0.
+# 							totTempSigContent_E = 0.
+# 							totTempSigContent_M = 0.
+# 							#print 'Appending bin edge',totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin)
+# 							xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
+# 		if xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn].append(0)
+# 		if totBkgHists[chn].GetBinContent(1)==0. or totBkgHists[chn.replace('isE','isM')].GetBinContent(1)==0.: 
+# 			if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
+# 		elif totBkgHists[chn].GetBinError(1)/totBkgHists[chn].GetBinContent(1)>stat or totBkgHists[chn.replace('isE','isM')].GetBinError(1)/totBkgHists[chn.replace('isE','isM')].GetBinContent(1)>stat: 
+# 			if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
+# 		xbinsListTemp[chn.replace('isE','isM')]=xbinsListTemp[chn]
+# 		if stat>1.0:
+# 			xbinsListTemp[chn] = [tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
+# 			for iBin in range(1,Nbins+1): 
+# 				xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
+# 			xbinsListTemp[chn.replace('isE','isM')] = xbinsListTemp[chn]
+# 	else:
 		if 'isE' not in chn: continue
 
 		#print 'Channel',chn,'integral is',totBkgHists[chn].Integral()
@@ -204,6 +215,20 @@ for chn in totBkgHists.keys():
 		#if 'wjets' in templateDir: index = 2
 		if 'higgs' in templateDir: index = 0
 		if 'CR' in templateDir: index = 2
+		if ('H1b' not in chn and 'H2b' not in chn and 'H1p' not in chn): index = 0 #added by rizki, get approprate hist to get appropriate bin info.
+		if (iPlot=='minMlbNXConeJetsST'): #added by rizki, get appropriate hist to get appropriate bin infos
+			if('H1b' not in chn and 'H2b' not in chn and 'H1p' not in chn and 'B3p' not in chn): index = 0 #added by rizki, get appropriate (minMlb) hist to get appropriate bin infos
+			if('H1b' not in chn and 'H2b' not in chn and 'H1p' not in chn and 'B3p' in chn): index = 3 #added by rizki, get appropriate hist (NXConeNJets) to get appropriate bin infos
+		if (iPlot=='minMlbNXConeJets'): #added by rizki, get appropriate hist to get appropriate bin infos
+			if('H1b' not in chn and 'H2b' not in chn and 'H1p' not in chn and 'B3p' not in chn): index = 0 #added by rizki, get appropriate (minMlb) hist to get appropriate bin infos
+			if('H1b' not in chn and 'H2b' not in chn and 'H1p' not in chn and 'B3p' in chn): index = 3 #added by rizki, get appropriate hist (NXConeNJets) to get appropriate bin infos
+		if('X' in chn): #added by rizki
+			if (iPlot=='minMlbST'):
+				if ('H2b' not in chn and 'H1b' not in chn): index = 0 #added by rizki, get appropriate (minMlb) hist to get appropriate bin infos
+				else: index = 6 # ST
+			if (iPlot=='STminMlb'):
+				if ('H0p' in chn): index = 8 #added by rizki, get appropriate (minMlb) hist to get appropriate bin infos
+				else: index = 0 # ST
 		xbinsListTemp[chn]=[tfile.Get(datahists[index]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[index]).GetXaxis().GetNbins())]
 		Nbins = tfile.Get(datahists[index]).GetNbinsX()
 		totTempBinContent_E = 0.

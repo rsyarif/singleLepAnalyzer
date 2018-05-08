@@ -13,8 +13,8 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='SRNoB0' #PS,SR,TTCR,WJCR
-isCategorized=False
+region='SR' #PS,SR,SRNoB0,TTCR,WJCR,HCR
+isCategorized=True
 cutString=''#lep40_MET60_DR0_1jet200_2jet100'
 if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
@@ -23,8 +23,12 @@ if region=='HCR': pfix='higgs_'
 if region=='CRall': pfix='control_'
 if region=='CR': pfix='templatesCR_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='NewEl'
-#pfix+='ST_2016_11_13_wJSF'
+# pfix+='NewEl_2018_2_12'
+# pfix+='NewEl_2018_3_22' # use minMlbNXConeJetsST, minMlbNXConeJets
+# pfix+='NewEl_2018_3_27' # use minMlbNXConeJetsV2, ST, maxMlep3XConeJetsST, maxMlep3XConeJetsST, minMlbST
+# pfix+='rizki_SR_GlobalNX5p_2018_4_16' # addd global cut NX5p
+# pfix+='rizki_SR_NewXConeCat_2018_4_16' # addd global cut NX5p
+pfix+='rizki_SR_GlobalNX5p_2018_4_16' # addd global cut NX5p
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -34,7 +38,8 @@ doAllSys =True
 doQ2sys = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','tau21','jmr','jms','muR','muF','muRFcorrd','jsf','toppt','trigeff','btag','mistag','taupt']#,,'topsf'
+# systematicList = ['pileup','jec','jer','tau21','jmr','jms','muR','muF','muRFcorrd','jsf','toppt','trigeff','btag','mistag','taupt']#,,'topsf'
+systematicList = ['pileup','tau21','jmr','jms','muR','muF','muRFcorrd','jsf','toppt','trigeff','btag','mistag','taupt'] # NO JEC, JER
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 bkgGrupList = ['top','ewk','qcd']
@@ -74,6 +79,7 @@ if not doBRScan: nBRconf=1
 
 isEMlist =['E','M']
 if region=='SR': nHtaglist=['0','1b','2b']
+# if region=='SR': nHtaglist = ['0','1b','2b','0p'] # added by rizki - comment when not using new XCone cat
 elif 'CR' in region:
 	if region=='HCR': nHtaglist=['1b','2b']
 	elif region=='CR': nHtaglist=['0','1p']
@@ -97,6 +103,7 @@ if not isCategorized:
 		nHtaglist = ['1p']
 		nbtaglist = ['1p']
 njetslist=['3p']
+# njetslist = ['3pX5p','3pX4m'] #added by rizki - comment when not using new XCone cat
 if region=='PS': njetslist=['3p']
 print 'EMlist = ',isEMlist
 print 'Hlist = ',nHtaglist
@@ -137,7 +144,8 @@ for item in list(itertools.product(isEMlist,nHtaglist,nWtaglist,nbtaglist,njetsl
 				if item[3] != '0' and item[3] != '1p': continue
 			else:
 				if item[3] != '1p' and region != 'WJCR' and region != 'HCR' and region != 'CR': continue
-		elif 'b' not in item[1]:
+		#elif 'b' not in item[1]:
+		elif 'b' not in item[1] and item[1]!='0p': #added by rizki
 			if region == 'CRall':
 				if item[2] == '0' and item[3] != '0': continue
 				elif item[2] == '1p' and item[3] != '0': continue
@@ -145,6 +153,15 @@ for item in list(itertools.product(isEMlist,nHtaglist,nWtaglist,nbtaglist,njetsl
 			else:
 				if item[2] == '0p' and region != 'TTCR' and region != 'HCR' and region != 'CR': continue
 				if item[3] == '1p' and region != 'CR': continue
+		if 'X' in item[4]: #added by rizki
+		 	if (item[1]=='0' or 'b' in item[1]): #added by rizki
+				if 'X5p' not in item[4]: continue #added by rizki
+				if item[3]=='0':continue #added by rizki
+			elif item[1]=='0p': #added by rizki
+				if 'X4m'not in item[4]: continue #added by rizki				
+				if '0p' not in item[2]: continue #added by rizki				
+				if '1p' not in item[3]: continue #added by rizki				
+		print item #added by rizki
 
 	catList.append('is'+item[0]+'_nH'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4])
 	if item[0] == 'E': tagList.append('nH'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4])
@@ -623,7 +640,24 @@ checkprint = False
 for iPlot in iPlotList:
 	#if iPlot != 'minMlb' and iPlot != 'ST' and iPlot != 'Tau21Nm1' and iPlot != 'PrunedWNm1' and iPlot != 'PrunedHNm1' and iPlot != 'PrunedNsubBNm1' and iPlot != 'NWJets' and iPlot != 'NBJets': continue
 	#if iPlot != 'NH1bJets' and iPlot != 'NH2bJets' and iPlot != 'NBJetsNotH': continue
-	if iPlot != 'ST': continue
+	#if iPlot != 'ST': continue
+	#if iPlot != 'NXConeJets': continue
+	#if iPlot != 'NJets': continue
+	#if iPlot != 'NXConeJetsST': continue
+# 	if iPlot != 'minMlbNXConeJetsST': continue
+# 	if iPlot != 'minMlbNXConeJets': continue
+# 	if iPlot != 'minMlbNXConeJetsV2': continue
+# 	if iPlot != 'ST': continue
+# 	if iPlot != 'maxMlep3XConeJetsST': continue
+# 	if iPlot != 'maxMlep3XConeJets': continue
+# 	if iPlot != 'minMlbST': continue
+	print '=============== iPlot : ', iPlot, 
+	if iPlot == 'minMlj': 
+# 		print '--> skipping.'
+# 		continue
+		print 'NVM - ignore me'
+	else:
+		print ''
 	datahists = {} 
 	bkghists  = {}
 	sighists  = {}

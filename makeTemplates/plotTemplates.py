@@ -15,7 +15,7 @@ lumi=35.9 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
 region='SR' #SR,TTCR,WJCR
-isCategorized=False
+isCategorized=True
 iPlot='ST'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''#lep40_MET60_DR0_1jet200_2jet100'
@@ -31,18 +31,24 @@ if len(sys.argv)>2: region=str(sys.argv[2])
 if len(sys.argv)>3: pfix=str(sys.argv[3])
 templateDir=os.getcwd()+'/'+pfix+'/'+cutString+'/'
 
-isRebinned='_rebinned_stat1p1' #post for ROOT file names
+statStr='stat0p3' #stat1p1
+isRebinned='_rebinned_'+statStr #post for ROOT file names
+# isRebinned='' #post for ROOT file names #added by rizki temporary!!
 saveKey = '' # tag for plot names
 
 sig1='TTM1000' #  choose the 1st signal to plot
 sig1leg='T#bar{T} (1.0 TeV)'
 sig2='TTM1200' #  choose the 2nd signal to plot
 sig2leg='T#bar{T} (1.2 TeV)'
+# sig1='TTM1400' #  choose the 1st signal to plot
+# sig1leg='T#bar{T} (1.4 TeV)'
+# sig2='TTM1800' #  choose the 2nd signal to plot
+# sig2leg='T#bar{T} (1.8 TeV)'
 drawNormalized = False # STACKS CAN'T DO THIS...bummer
-scaleSignals = False
+scaleSignals = True
 if not isCategorized and 'CR' not in region: scaleSignals = True
 sigScaleFact = 100
-if 'SR' in region: sigScaleFact = 50
+if 'SR' in region: sigScaleFact = -1 #-1 #50
 if 'Nm1' in iPlot: sigScaleFact = sigScaleFact/5
 print 'Scaling signals?',scaleSignals
 print 'Scale factor = ',sigScaleFact
@@ -53,7 +59,8 @@ if '53' in sig1: bkgHistColors = {'top':kRed-9,'ewk':kBlue-7,'qcd':kOrange-5} #X
 elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
 else: bkgHistColors = {'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #TT
 
-systematicList = ['tau21','jmr','jms','pileup','jec','jer','muRFcorrdNewTop','muRFcorrdNewEwk','muRFcorrdNewQCD','pdfNew','toppt','btag','mistag','trigeff','taupt']
+# systematicList = ['tau21','jmr','jms','pileup','jec','jer','muRFcorrdNewTop','muRFcorrdNewEwk','muRFcorrdNewQCD','pdfNew','toppt','btag','mistag','trigeff','taupt']
+systematicList = ['tau21','jmr','jms','pileup','muRFcorrdNewTop','muRFcorrdNewEwk','muRFcorrdNewQCD','pdfNew','toppt','btag','mistag','trigeff','taupt'] #no JEC JER
 if 'WJCRnoJSF' in pfix or 'WJCRwSFs' in pfix or 'TTCRwNewWgt' in pfix: systematicList = ['tau21','pileup','jec','jer','muRFcorrdNew','pdfNew','toppt']
 if 'WJCRwJSF' in pfix: systematicList = ['tau21','pileup','jec','jer','muRFcorrdNew','pdfNew','toppt','jsf']
 if 'TTCRnoJSF' in pfix: systematicList = ['tau21','pileup','jec','jer','muRFcorrdNew','pdfNew']
@@ -77,6 +84,7 @@ histrange = {}
 isEMlist =['E','M']
 #isEMlist =['M']
 if region=='SR': nHtaglist=['0','1b','2b']
+# if region=='SR': nHtaglist = ['0','1b','2b','0p'] # added by rizki - comment when not using new XCone cat
 elif 'CR' in region:
 	if region=='HCR': nHtaglist=['1b','2b']
 	elif region=='CR': nHtaglist=['0','1p']
@@ -99,7 +107,8 @@ if not isCategorized:
 	if region=='HCR': 
 		nHtaglist = ['1b','2b']
 		nbtaglist = ['1p']
-njetslist = ['3p']
+njetslist = ['3p'] #use this when not using new XCone cat
+# njetslist = ['3pX5p','3pX4m'] #added by rizki - comment when not using new XCone cat
 if region=='PS': njetslist = ['3p']
 if iPlot=='YLD':
 	doNormByBinWidth = False
@@ -117,7 +126,8 @@ if isCategorized and iPlot != 'YLD':
 				if item[2] != '0' and item[2] != '1p': continue
 			else:
 				if item[2] != '1p' and region != 'WJCR' and region != 'HCR' and region != 'CR': continue
-		elif 'b' not in item[0]:
+		#elif 'b' not in item[0]:
+		elif 'b' not in item[0] and item[0]!='0p': #added by rizki
 			if region == 'CRall':
 				if item[1] == '0' and item[2] != '0': continue
 				elif item[1] == '1p' and item[2] != '0': continue
@@ -125,6 +135,15 @@ if isCategorized and iPlot != 'YLD':
 			else:
 				if item[1] == '0p' and region != 'TTCR' and region != 'HCR' and region != 'CR': continue
 				if item[2] == '1p' and region != 'CR': continue
+		if 'X' in item[3]: #added by rizki
+		 	if (item[0]=='0' or 'b' in item[0]): #added by rizki
+				if 'X5p' not in item[3]: continue #added by rizki
+				if item[2]=='0':continue #added by rizki
+			elif item[0]=='0p': #added by rizki
+				if 'X4m'not in item[3]: continue #added by rizki				
+				if '0p' not in item[1]: continue #added by rizki				
+				if '1p' not in item[2]: continue #added by rizki				
+		print item #added by rizki
 		tag = [item[0],item[1],item[2],item[3]]
 		tagList.append(tag)
 else: tagList = list(itertools.product(nHtaglist,nWtaglist,nbtaglist,njetslist))
@@ -314,6 +333,8 @@ for tag in tagList:
 		if scaleFact2==0: scaleFact2=int(bkgHT.GetMaximum()/hsig2.GetMaximum())
 		if scaleFact1==0: scaleFact1=1
 		if scaleFact2==0: scaleFact2=1
+		if scaleFact1==-1: scaleFact1=bkgHT.Integral() * (1/hsig1.Integral())
+		if scaleFact2==-1: scaleFact2=bkgHT.Integral() * (1/hsig2.Integral())
 		if sigScaleFact>0:
 			scaleFact1=sigScaleFact
 			scaleFact2=sigScaleFact*2
@@ -629,7 +650,7 @@ for tag in tagList:
 		#c1.Write()
 		savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 		if not os.path.exists(savePrefix): os.system('mkdir '+savePrefix)
-		savePrefix+=histPrefix+isRebinned.replace('_rebinned_stat1p1','')+saveKey
+		savePrefix+=histPrefix+isRebinned.replace('_rebinned_'+statStr,'')+saveKey
 		if nHtaglist[0]=='0p': savePrefix=savePrefix.replace('nH0p_','')
 		if nWtaglist[0]=='0p': savePrefix=savePrefix.replace('nW0p_','')
 		if nbtaglist[0]=='0p': savePrefix=savePrefix.replace('nB0p_','')
@@ -1048,7 +1069,7 @@ for tag in tagList:
 	#c1merged.Write()
 	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 	if not os.path.exists(savePrefixmerged): os.system('mkdir '+savePrefixmerged)
-	savePrefixmerged+=histPrefixE.replace('isE','isL')+isRebinned.replace('_rebinned_stat1p1','')+saveKey
+	savePrefixmerged+=histPrefixE.replace('isE','isL')+isRebinned.replace('_rebinned_'+statStr,'')+saveKey
 	if nHtaglist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nH0p_','')
 	if nWtaglist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nW0p_','')
 	if nbtaglist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nB0p_','')

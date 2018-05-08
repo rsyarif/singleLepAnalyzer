@@ -52,6 +52,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		if region=='PS2b': cut += ' && NJetsCSVwithSF_JetSubCalc >= 2'
 		elif region=='PS1b': cut += ' && NJetsCSVwithSF_JetSubCalc >= 1'
 		elif region=='PS0b': cut += ' && NJetsCSVwithSF_JetSubCalc == 0'
+		#cut += ' && NXConeJets>=5' # added by rizki for SR_NX5Global Apr16-2018
 
 	# Define weights
 	TrigEff = 'TrigEffWeightRMA'
@@ -164,7 +165,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 			plotTreeName='minMleppJet'
 			if origname != plotTreeName: print 'NEW LJMET NAME:',plotTreeName
 
-		if ('b' in nHtag or '1p' in nHtag) and iPlot=='minMlbST':
+		#if ('b' in nHtag or '1p' in nHtag) and iPlot=='minMlbST':
+		if ('b' in nHtag or '1p' in nHtag) and (iPlot=='minMlbST' or iPlot=='NXConeJetsST' or iPlot=='minMlbNXConeJetsST' or iPlot=='maxMlep3XConeJetsST'): #added by rizki
 			origname = plotTreeName
 			plotTreeName = 'AK4HTpMETpLepPt'
 			xbins=array('d', linspace(0, 5000, 101).tolist())
@@ -174,9 +176,50 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 				print "x-axis label is set to:", xAxisLabel
 				print "using the binning as:", linspace(0, 5000, 101).tolist()
 
-		if 'p' in njets: njetsCut+=' && '+njetsLJMETname+'>='+njets[:-1]
-		else: njetsCut+=' && '+njetsLJMETname+'=='+njets
+		if ('3p' in nbtag ) and (iPlot=='minMlbNXConeJetsST' or iPlot=='minMlbNXConeJets'): #added by rizki
+			origname = plotTreeName
+			plotTreeName = 'NXConeJets'
+			xbins=array('d', linspace(0, 15, 16).tolist())
+			xAxisLabel=';XCone jet multiplicity;'	
+			if origname != plotTreeName: 
+				print 'NEW LJMET NAME:', plotTreeName
+				print "x-axis label is set to:", xAxisLabel
+				print "using the binning as:", linspace(0, 15, 16).tolist()
+
+		if ('b' in nHtag or '1p' in nHtag) and (iPlot=='minMlbNXConeJets' or iPlot=='minMlbNXConeJetsV2'): #added by rizki
+			origname = plotTreeName
+			plotTreeName = 'NXConeJets'
+			xbins=array('d', linspace(0, 15, 16).tolist())
+			xAxisLabel=';XCone jet multiplicity;'	
+			if origname != plotTreeName: 
+				print 'NEW LJMET NAME:', plotTreeName
+				print "x-axis label is set to:", xAxisLabel
+				print "using the binning as:", linspace(0, 15, 16).tolist()
+
+		if ('X4m' in njets) and (iPlot=='STminMlb'): #added by rizki
+			origname = plotTreeName
+			plotTreeName = 'minMleppBjet'
+			xbins=array('d', linspace(0, 1000, 101).tolist())
+			xAxisLabel=';min[M(l,b)] (GeV);'	
+			if origname != plotTreeName: 
+				print 'NEW LJMET NAME:', plotTreeName
+				print "x-axis label is set to:", xAxisLabel
+				print "using the binning as:", linspace(0, 1000, 101).tolist()
+
+		#if 'p' in njets: njetsCut+=' && '+njetsLJMETname+'>='+njets[:-1]
+		#else: njetsCut+=' && '+njetsLJMETname+'=='+njets
 		if njets=='0p': njetsCut=''
+		if 'p' in njets and 'X' not in njets: njetsCut+=' && '+njetsLJMETname+'>='+njets[:-1] # added by rizki
+		elif 'X' not in njets: njetsCut+=' && '+njetsLJMETname+'=='+njets[:-1] # added by rizki
+		if 'X' in njets: # added by rizki
+			n_ak4jets = njets.split('X')[0] # added by rizki
+			if 'p' in n_ak4jets: njetsCut+=' && '+njetsLJMETname+'>='+n_ak4jets[0] # added by rizki
+			else: njetsCut+=' && '+njetsLJMETname+'=='+n_ak4jets[0] # added by rizki
+
+			n_xconejets = njets.split('X')[1] # added by rizki
+			if 'p' in n_xconejets:  njetsCut+=' && NXConeJets>='+n_xconejets[0] # added by rizki
+			if 'm' in n_xconejets:  njetsCut+=' && NXConeJets<='+n_xconejets[0] # added by rizki
+ 			print 'njets:',njets, 'ak4:',n_ak4jets, 'xcone:',n_xconejets # added by rizki
 
 	else:
 		if 'SR' in region: cut += ' && ((('+nWtagLJMETname+' > 0 || '+nHtagLJMETname+' > 0 || NJetsH2btagged > 0) && NJets_JetSubCalc >= '+str(cutList['njetsCut'])+') || (('+nWtagLJMETname+' == 0 && '+nHtagLJMETname+' == 0 && NJetsH2btagged == 0) && NJets_JetSubCalc >= '+str(cutList['njetsCut']+1)+'))'
@@ -247,16 +290,25 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		# hists[iPlot+'topsfUp_'      +lumiStr+'fb_'+catStr+'_'+process] = TH1D(iPlot+'topsfUp_'      +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 		# hists[iPlot+'topsfDown_'    +lumiStr+'fb_'+catStr+'_'+process] = TH1D(iPlot+'topsfDown_'    +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 			
-		if tTree[process+'jerUp']: 
-			hists[iPlot+'jerUp_'   +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'jerUp_'   +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-			hists[iPlot+'jerDown_' +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'jerDown_' +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		if tTree[process+'jecUp']:
-			hists[iPlot+'jecUp_'   +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'jecUp_'   +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-			hists[iPlot+'jecDown_' +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'jecDown_' +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+# 		if tTree[process+'jerUp']: 
+# 			hists[iPlot+'jerUp_'   +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'jerUp_'   +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+# 			hists[iPlot+'jerDown_' +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'jerDown_' +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+# 		if tTree[process+'jecUp']:
+# 			hists[iPlot+'jecUp_'   +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'jecUp_'   +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+# 			hists[iPlot+'jecDown_' +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'jecDown_' +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 		for i in range(100): hists[iPlot+'pdf'+str(i)+'_'+lumiStr+'fb_'+catStr+'_'+process] = TH1D(iPlot+'pdf'+str(i)+'_'+lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 	for key in hists.keys(): hists[key].Sumw2()
 
 	# DRAW histograms
+# 	print 'plotTreeName = ',plotTreeName
+# 	print 'iPlot = ',iPlot
+# 	print 'lumiStr = ',lumiStr
+# 	print 'catStr = ',catStr
+# 	print 'process = ',process
+# 	print 'weightStr = ',weightStr
+# 	print 'fullcut = ',fullcut
+# 	tTree[process].Print()
+# 	print ''
 	tTree[process].Draw(plotTreeName+' >> '+iPlot+''+'_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
 	if doAllSys:
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffUp_'    +lumiStr+'fb_'+catStr+'_'+process, weightTrigEffUpStr+'*('+fullcut+')', 'GOFF')
@@ -336,12 +388,12 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		tTree[process].Draw(MISTAGupName+' >> '+iPlot+'mistagUp_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_mistagUp+')', 'GOFF')
 		tTree[process].Draw(MISTAGdnName+' >> '+iPlot+'mistagDown_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_mistagDn+')', 'GOFF')
 
-		if tTree[process+'jecUp']:
-			tTree[process+'jecUp'].Draw(plotTreeName   +' >> '+iPlot+'jecUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
-			tTree[process+'jecDown'].Draw(plotTreeName +' >> '+iPlot+'jecDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
-		if tTree[process+'jerUp']:
-			tTree[process+'jerUp'].Draw(plotTreeName   +' >> '+iPlot+'jerUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
-			tTree[process+'jerDown'].Draw(plotTreeName +' >> '+iPlot+'jerDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+# 		if tTree[process+'jecUp']:
+# 			tTree[process+'jecUp'].Draw(plotTreeName   +' >> '+iPlot+'jecUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+# 			tTree[process+'jecDown'].Draw(plotTreeName +' >> '+iPlot+'jecDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+# 		if tTree[process+'jerUp']:
+# 			tTree[process+'jerUp'].Draw(plotTreeName   +' >> '+iPlot+'jerUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+# 			tTree[process+'jerDown'].Draw(plotTreeName +' >> '+iPlot+'jerDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
 		for i in range(100): tTree[process].Draw(plotTreeName+' >> '+iPlot+'pdf'+str(i)+'_'+lumiStr+'fb_'+catStr+'_'+process, 'pdfWeights['+str(i)+'] * '+weightStr+'*('+fullcut+')', 'GOFF')
 	
 	for key in hists.keys(): hists[key].SetDirectory(0)	

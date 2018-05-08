@@ -20,7 +20,8 @@ histPrefix=discriminant+'_'+str(lumiStr)+'fb'+spin
 stat='0.3'#0.75
 isRebinned='_rebinned'
 tempKey='templates4CRhtSR_postfit'
-limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/'+tempKey+'/'
+# limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/'+tempKey+'/'
+limitDir='/user_data/rsyarif/singleLepXConelimits/'+tempKey+'/'
 cutString=''#SelectionFile'
 LH700file='/templates_'+discriminant+'_TTM1000_bW0p5_tZ0p25_tH0p25_36p814fb_BKGNORM_rebinned_stat0p3_'+post+'.p' #
 

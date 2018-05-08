@@ -2,8 +2,13 @@ import os,sys,datetime,itertools
 
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
-region='SRNoB0' #PS,SR,TTCR,WJCR
-categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
+region='SR' #SR,PS,SR,SRNoB0,TTCR,WJCR,HCR
+categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
+
+cTime=datetime.datetime.now()
+date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
+time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
+
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
@@ -13,44 +18,68 @@ elif region=='WJCR': pfix='wjets_NewEl'
 elif region=='HCR': pfix='higgs_NewEl'
 elif region=='CRall': pfix='control_NewEl'  #alllll the categories
 elif region=='CR': pfix='templatesCR_NewEl' #more inclusive categories to be faster
-else: pfix='templates_NewEl'
+# else: pfix='templates_NewEl'
+# else: pfix='templates_NewEl_'+date
+# else: pfix='templates_rizki_'+region+'_GlobalNX5p_'+date #DONT FORGET TO CHECK ANALYZE.PY for the GLOBAL CUT
+# else: pfix='templates_rizki_'+region+'_NewXConeCat_'+date
+else: pfix='templates_rizki_'+region+'_NewXConeCat_2018_4_16'
+# else: pfix='templates_NewEl_BB_'+date
 if not categorize: pfix='kinematics_'+region+'_NewEl'
 #pfix+='_'+date+'_wJSF'#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
-	# 'minMlbST',
- 	# 'ST',
-	'HT',
- 	'minMlb',
-	'minMlj',	
-	'lepPt',
-	# 'deltaRjet1',
-	# 'deltaRjet2',
-	# 'deltaRAK8',
-	# 'lepIso',
-	'HT',
-	'JetPt',
-	'MET',
-	'NJets',
-	'NBJets',
-	'NBJetsNotH',
-	# 'NBJetsNotPH',
-	'NWJets',
-	# 'PuppiNWJets',
-	'NH1bJets',
-	'NH2bJets',
-	# 'PuppiNH1bJets',
-	# 'PuppiNH2bJets',
-	'NJetsAK8',
-	'JetPtAK8',
-	'Tau21',
-	'Tau21Nm1',
-	# 'PuppiTau21',
-	# 'PuppiTau21Nm1',
-	# 'Pruned',
-	'PrunedWNm1',
-	'PrunedHNm1',
-	'PrunedNsubBNm1',
+
+# 	#XCone - start
+# 	'XConeJetPt',
+# 	'XConeJetEta',
+# 	'XConePUPPIJetPt',
+# 	'XConePUPPIJetEta',
+# 	'NXConeJets',
+# 	'NXConeJetsST',
+# 	'NXConePUPPIJets',
+# 	'XConeHT',
+# 	'XConePUPPIHT',
+# 	'minMlbNXConeJetsST',
+# 	'minMlbNXConeJets',
+# 	'minMlbNXConeJetsV2',
+# 	'maxMlep3XConeJetsST',
+# 	'maxMlep3XConeJets',
+# 	#XCone - end
+
+	'STminMlb',
+# 	'minMlbST',
+#  	'ST',
+# 	'HT',
+#  	'minMlb',
+# 	'minMlj',	
+# 	'lepPt',
+# 	# 'deltaRjet1',
+# 	# 'deltaRjet2',
+# 	# 'deltaRAK8',
+# 	# 'lepIso',
+# 	'HT',
+# 	'JetPt',
+# 	'MET',
+# 	'NJets',
+# 	'NBJets',
+# 	'NBJetsNotH',
+# 	# 'NBJetsNotPH',
+# 	'NWJets',
+# 	# 'PuppiNWJets',
+# 	'NH1bJets',
+# 	'NH2bJets',
+# 	# 'PuppiNH1bJets',
+# 	# 'PuppiNH2bJets',
+# 	'NJetsAK8',
+# 	'JetPtAK8',
+# 	'Tau21',
+# 	'Tau21Nm1',
+# 	# 'PuppiTau21',
+# 	# 'PuppiTau21Nm1',
+# 	# 'Pruned',
+# 	'PrunedWNm1',
+# 	'PrunedHNm1',
+# 	'PrunedNsubBNm1',
 	# 'PuppiSD',
 	# 'PuppiSDWNm1',
 	# 'PuppiSDHNm1',
@@ -115,7 +144,8 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	]
 
 isEMlist = ['E','M']
-if region=='SR': nHtaglist = ['0','1b','2b']
+# if region=='SR': nHtaglist = ['0','1b','2b'] #use this when not using new XCone cat
+if region=='SR': nHtaglist = ['0','1b','2b','0p'] # added by rizki - comment when not using new XCone cat
 elif 'CR' in region: 
 	if region == 'HCR': nHtaglist = ['1b','2b']
 	elif region=='CR': nHtaglist = ['0','1p']
@@ -141,7 +171,8 @@ if not categorize:
 	if region=='HCR': 
 		nHtaglist = ['1p']
 		nbtaglist = ['0','1p']
-njetslist = ['3p']
+# njetslist = ['3p'] #use this when not using new XCone cat
+njetslist = ['3pX5p','3pX4m'] #added by rizki - comment when not using new XCone cat
 if region=='PS': njetslist = ['3p']
 
 outDir = outputDir+pfix
@@ -161,10 +192,21 @@ for iplot in iPlotList:
 				#print 'got an H tag'
 				if cat[2] != '0p': continue
 				if ((region == 'SR' or region == 'TTCR') and cat[3] != '1p') or (region == 'WJCR' and cat[3] != '0') or (region == 'HCR' and cat[3] != '0' and cat[3] != '1p'): continue
-			else:
+				if 'X' in cat[4]: #added by rizki
+					if 'X5p' not in cat[4] : continue #added by rizki
+# 			else:
+			elif '0p' not in cat[1]: #added by rizki
 				#print 'no H tag'
 				if (region == 'SR' or region == 'WJCR') and cat[2] == '0p': continue
 				if cat[3] == '1p' and region != 'CR': continue
+				if 'X' in cat[4]: #added by rizki
+					if 'X5p' not in cat[4] : continue #added by rizki
+					if '0' in cat[3] : continue #added by rizki
+			elif 'X' in cat[4]: # added by rizki
+				if 'X4m'not in cat[4] : continue #added by rizki
+				if '0p' not in cat[2] : continue #added by rizki
+				if '1p' not in cat[3] : continue #added by rizki
+					
 		print catDir
 		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+catDir)
 		os.chdir(catDir)			

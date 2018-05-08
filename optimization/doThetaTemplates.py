@@ -23,7 +23,8 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 """
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jhogan/LJMet80X_1lepTT_030217_step2slimmed/nominal'
+# step1Dir = '/user_data/jhogan/LJMet80X_1lepTT_030217_step2slimmed/nominal'
+step1Dir = '/user_data/rsyarif/LJMet80X_1lep_XCone_2018_1_18_and_2018_1_26_and_2018_1_29_rizki_step1_v2_hadds/nominal' #3rd version with maxMlep3XConeJets
 
 region = 'SR' #no need to change
 isotrig = 1
